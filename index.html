@@ -2,11 +2,11 @@
 <html>
 
 <head>
-    <title>DWS Demo</title>
+    <title>DCS Demo</title>
 </head>
 
 <body>
-    <h1>Dynamsoft Webcam SDK: Hello World</h1>
+    <h1>Dynamsoft Camera SDK: Hello World</h1>
     <select size="1" id="source" width="220px" onchange="onSourceChanged()"></select>
     <input type="button" value="Capture" onclick="onCapture();" />
     <input type="button" value="Save" onclick="onSave();" />
@@ -14,31 +14,32 @@
     <div id="video-container"> </div>
     <div id="image-container"> </div>
 
-    <script type="text/javascript" src="DWSResources/dynamsoft.webcam.config.js"> </script>
-    <script type="text/javascript" src="DWSResources/dynamsoft.webcam.initiate.js"> </script>
+    <script type="text/javascript" src="http://www.dynamsoft.com/library/dcs/dynamsoft.camera.min.js">
+    </script>
     <script>
-        var dwsObject, imageViewer;
-        var width = 480, height = 320;
+        var dcsObject, imageViewer;
+        var width = 480,
+            height = 320;
 
-        function onInitSuccess(videoViewerId, imageViewerId) { 
-            dwsObject = dynamsoft.dwsEnv.getObject(videoViewerId); // Get the Dynamsoft Webcam object
-            dwsObject.videoviewer.setWidth(width);
-            dwsObject.videoviewer.setHeight(height);
+        function onInitSuccess(videoViewerId, imageViewerId) {
+            dcsObject = dynamsoft.dcsEnv.getObject(videoViewerId); // Get the Dynamsoft Webcam object
+            dcsObject.videoviewer.setWidth(width);
+            dcsObject.videoviewer.setHeight(height);
 
-            imageViewer = dwsObject.getImageViewer(imageViewerId); // Get a specific image viewer
+            imageViewer = dcsObject.getImageViewer(imageViewerId); // Get a specific image viewer
             imageViewer.ui.setWidth(width);
             imageViewer.ui.setHeight(height);
 
-            var cameraList = dwsObject.camera.getCameraList(); // Get a list of available cameras
+            var cameraList = dcsObject.camera.getCameraList(); // Get a list of available cameras
             for (var i = 0; i < cameraList.length; i++) {
                 document.getElementById("source").options.add(new Option(cameraList[i], i));
             }
-						
+
             if (cameraList.length > 0) {
                 // Call this method to take the ownership, 
                 // in case the listed camera is occupied by another Dynamsoft Webcam process.
-                dwsObject.camera.takeCameraOwnership(cameraList[0]);
-                dwsObject.camera.playVideo();
+                dcsObject.camera.takeCameraOwnership(cameraList[0]);
+                dcsObject.camera.playVideo();
             } else {
                 alert('No camera is connected.');
             }
@@ -49,21 +50,21 @@
         };
 
         function onSourceChanged() {
-            if (!dwsObject) return;
+            if (!dcsObject) return;
 
             var source = document.getElementById("source");
             var camera = source.options[source.selectedIndex].text;
-            dwsObject.camera.takeCameraOwnership(camera);
-            dwsObject.camera.playVideo();
+            dcsObject.camera.takeCameraOwnership(camera);
+            dcsObject.camera.playVideo();
         };
 
         function onCapture() {
-            if (!dwsObject) return;
+            if (!dcsObject) return;
 
-            dwsObject.camera.captureImage('image-container');
+            dcsObject.camera.captureImage('image-container');
 
-            if (dwsObject.getErrorCode() !== EnumDWS_ErrorCode.OK) {
-                alert('Capture error: ' + dwsObject.getErrorString());
+            if (dcsObject.getErrorCode() !== EnumDCS_ErrorCode.OK) {
+                alert('Capture error: ' + dcsObject.getErrorString());
             }
         };
 
@@ -71,7 +72,7 @@
             if (!imageViewer) return;
 
             // Convert image indices to an array
-            var data = imageViewer.io.convertToBase64([imageViewer.image.getIndex()], imageViewer.io.EnumImageType.PNG);
+            var data = imageViewer.io.convertToBase64(imageViewer.image.getSelectedIndices(), imageViewer.io.EnumImageType.PNG);
 
             if (!data) return;
 
@@ -83,13 +84,12 @@
         };
 
         // Initialize Dynamsoft Webcam object
-        dynamsoft.dwsEnv.init('video-container', 'image-container', onInitSuccess, onInitFailure); 
+        dynamsoft.dcsEnv.init('video-container', 'image-container', onInitSuccess, onInitFailure);
 
         // Destroy Dynamsoft Webcam object when the page is closed
         window.onbeforeunload = function() {
-            if (dwsObject) dwsObject.destroy();
+            if (dcsObject) dcsObject.destroy();
         };
-
     </script>
 </body>
 
